@@ -1,0 +1,40 @@
+.env
+__pycache__/
+.pytest_cache/
+.venv/
+logs/*.jsonl*
+
+# Local secrets and environment files
+.env*
+!.env.example
+
+# Logs and generated data
+logs/
+*.jsonl
+
+# Python and test artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Editor backups and temporary files
+*.bak
+*.backup
+*.tmp
+*.swp
+.DS_Store
+
+# Local backup copies — never publish
+.env.*-backup
+*.bak
+*.temp-backup
+*.pre-*.bak
+
+# OS metadata
+.DS_Store
+
+# local backup files
+*.bak
+*.temp-backup
