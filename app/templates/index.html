@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f8fa">
+  <title>HealthTrack AI — Clinical Decision Support</title>
+  <style>
+    :root {
+      --navy: #172f46;
+      --navy-2: #24445c;
+      --teal: #087f8c;
+      --teal-dark: #066773;
+      --teal-soft: #e5f5f4;
+      --ink: #253748;
+      --muted: #708090;
+      --line: #e3eaf0;
+      --paper: #ffffff;
+      --bg: #f4f7fa;
+      --red: #b42332;
+      --red-bg: #fff0f1;
+      --amber: #99620a;
+      --amber-bg: #fff6e6;
+      --green: #247451;
+      --green-bg: #eaf7ef;
+      --shadow: 0 8px 28px rgba(23, 47, 70, .055);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select, textarea { font: inherit; }
+
+    .topbar {
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .nav {
+      max-width: 1160px;
+      min-height: 76px;
+      margin: auto;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand { display: flex; align-items: center; gap: 12px; }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--teal);
+      color: white;
+      font-size: 23px;
+      font-weight: 800;
+    }
+
+    .brand-name {
+      color: var(--navy);
+      font-size: 19px;
+      line-height: 1.25;
+      font-weight: 760;
+      letter-spacing: -.5px;
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .nav-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #527064;
+      font-size: 12px;
+      font-weight: 650;
+      background: #f0f8f4;
+      border: 1px solid #dceee3;
+      border-radius: 30px;
+      padding: 8px 12px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      background: #3d9b70;
+      border-radius: 50%;
+    }
+
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 42px 28px 56px;
+    }
+
+    .intro { margin-bottom: 28px; }
+
+    .eyebrow {
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 1.7px;
+      font-size: 10px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      color: var(--navy);
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.2;
+      letter-spacing: -1.2px;
+      margin: 0 0 10px;
+    }
+
+    .intro p {
+      max-width: 650px;
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: #edf6fa;
+      border: 1px solid #d9eaf1;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      color: #35586b;
+      font-size: 12px;
+    }
+
+    .notice-icon {
+      flex: 0 0 24px;
+      height: 24px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: #d8edf2;
+      color: #176b7c;
+      font-weight: 800;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      align-items: start;
+      gap: 24px;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .panel-head {
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-kicker {
+      color: var(--teal);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.3px;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      color: var(--navy);
+      font-size: 18px;
+      letter-spacing: -.35px;
+      margin: 5px 0 4px;
+    }
+
+    .panel-desc { color: var(--muted); font-size: 12px; margin: 0; }
+
+    .form-body { padding: 22px 24px 24px; }
+
+    .field { margin-bottom: 19px; }
+
+    label {
+      display: block;
+      color: #34495b;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .optional {
+      color: #8996a3;
+      font-weight: 450;
+      margin-left: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 45px;
+      padding: 11px 13px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid #d8e1e8;
+      border-radius: 9px;
+      outline: none;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    textarea { min-height: 96px; resize: vertical; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(8, 127, 140, .11);
+    }
+
+    input::placeholder, textarea::placeholder { color: #a0acb7; }
+
+    .hint {
+      margin-top: 6px;
+      color: #8492a0;
+      font-size: 11px;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--line);
+      margin: 4px 0 20px;
+    }
+
+    .primary {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 10px;
+      background: var(--teal);
+      color: white;
+      font-weight: 750;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: background .15s, transform .15s;
+    }
+
+    .primary:hover { background: var(--teal-dark); }
+    .primary:active { transform: translateY(1px); }
+    .primary:disabled { opacity: .65; cursor: wait; }
+
+    .form-foot {
+      color: #8794a1;
+      font-size: 11px;
+      text-align: center;
+      margin: 12px 0 0;
+    }
+
+    .results-body { padding: 24px; min-height: 300px; }
+
+    .empty-state {
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 19px;
+      background: var(--teal-soft);
+      color: var(--teal);
+      font-size: 30px;
+      margin-bottom: 17px;
+    }
+
+    .empty-state h3 { color: var(--navy); font-size: 16px; margin: 0 0 7px; }
+    .empty-state p { max-width: 260px; color: var(--muted); font-size: 12px; margin: 0; }
+
+    .loading-state {
+      text-align: center;
+      padding: 62px 12px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      width: 30px;
+      height: 30px;
+      border: 3px solid #dceeed;
+      border-top-color: var(--teal);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .result-top {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      margin-bottom: 19px;
+    }
+
+    .result-top.routine { background: var(--green-bg); border-color: #d1eadb; }
+    .result-top.urgent { background: var(--amber-bg); border-color: #f0dfb9; }
+    .result-top.emergency { background: var(--red-bg); border-color: #f1c4ca; }
+
+    .urgency-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .urgency-value {
+      font-size: 24px;
+      line-height: 1.3;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      margin-top: 5px;
+    }
+
+    .routine .urgency-value { color: var(--green); }
+    .urgent .urgency-value { color: var(--amber); }
+    .emergency .urgency-value { color: var(--red); }
+
+    .urgency-note { font-size: 12px; margin-top: 7px; color: #5c6975; }
+
+    .emergency-callout {
+      padding: 13px 15px;
+      border-radius: 10px;
+      border: 1px solid #efb5bc;
+      background: #fff8f8;
+      color: #8e1b28;
+      font-size: 12px;
+      margin-bottom: 19px;
+    }
+
+    .result-section { margin-top: 22px; }
+    .result-section:first-child { margin-top: 0; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 800;
+      margin: 0 0 12px;
+    }
+
+    .section-icon {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #edf3f7;
+      color: #496578;
+      font-size: 13px;
+    }
+
+    .result-list { list-style: none; margin: 0; padding: 0; }
+
+    .result-list li {
+      position: relative;
+      padding: 11px 12px 11px 15px;
+      border: 1px solid #e8edf1;
+      border-radius: 9px;
+      margin-bottom: 8px;
+      color: #46596a;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .result-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 12px;
+      bottom: 12px;
+      width: 3px;
+      border-radius: 3px;
+      background: #b8cbd5;
+    }
+
+    .emergency-list li::before { background: #d74d5a; }
+    .steps-list li::before { background: var(--teal); }
+
+    .condition-name { display: block; color: var(--navy); font-weight: 750; margin-bottom: 4px; }
+    .condition-detail { color: #6e7f8d; font-size: 11px; }
+    .tag {
+      display: inline-block;
+      padding: 2px 7px;
+      margin-left: 5px;
+      border-radius: 20px;
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: #eef2f5;
+      color: #647484;
+      vertical-align: 2px;
+    }
+
+    .tag.high { background: #ffeaec; color: #a51e2c; }
+    .tag.medium { background: #fff2d8; color: #8c5b07; }
+    .tag.low { background: #e9f5ee; color: #2c7752; }
+
+    .disclaimer {
+      border-top: 1px solid var(--line);
+      margin-top: 22px;
+      padding-top: 16px;
+      color: #7b8996;
+      font-size: 11px;
+    }
+
+    .request-id { margin-top: 8px; font-size: 10px; color: #a0aab4; overflow-wrap: anywhere; }
+
+    .error-box {
+      padding: 14px;
+      border: 1px solid #f1c4ca;
+      background: var(--red-bg);
+      border-radius: 10px;
+      color: #a51e2c;
+      font-size: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    footer {
+      max-width: 1160px;
+      margin: auto;
+      padding: 0 28px 26px;
+      color: #91a0ac;
+      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+      main { padding-top: 30px; }
+      .workspace { grid-template-columns: 1fr; }
+      .results-body { min-height: 220px; }
+      .empty-state { min-height: 190px; }
+    }
+
+    @media (max-width: 480px) {
+      .nav { padding: 13px 17px; }
+      .brand-name { font-size: 17px; }
+      .nav-status { font-size: 10px; padding: 7px 9px; }
+      main { padding: 27px 15px 38px; }
+      .panel-head, .form-body, .results-body { padding: 19px; }
+      .two-col { gap: 10px; }
+      footer { padding: 0 15px 22px; flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+  
+    .temperature-box {
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--border, #dbe4ee);
+      border-radius: 14px;
+      background: var(--surface, #f8fafc);
+    }
+    .temperature-box[hidden] { display: none !important; }
+    .temperature-box .two-col { margin-top: 10px; }
+    .temp-check {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+    .temp-check input {
+      width: auto;
+      min-height: auto;
+      margin: 0;
+      box-shadow: none;
+    }
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="nav">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">+</div>
+        <div>
+          <div class="brand-name">HealthTrack <span style="color:var(--teal)">AI</span></div>
+          <div class="brand-sub">Clinical decision support</div>
+        </div>
+      </div>
+      <div class="nav-status"><span class="status-dot"></span> Assessment workspace</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <div class="eyebrow">Clinical assessment · Decision support</div>
+      <h1>Understand the symptoms.<br>Support the next decision.</h1>
+      <p>Enter the available patient information to generate a structured preliminary assessment for clinical review.</p>
+    </section>
+
+    <div class="notice">
+      <div class="notice-icon" aria-hidden="true">i</div>
+      <div><strong>Clinical safety notice</strong><br>
+        This tool provides preliminary decision support, not a diagnosis. Do not delay emergency care to use this application. Always apply clinical judgement.</div>
+    </div>
+
+    <div class="workspace">
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-kicker">01 / Patient information</div>
+          <h2>Symptom assessment</h2>
+          <p class="panel-desc">Enter the details available for this assessment.</p>
+        </div>
+
+        <form id="assessment-form" class="form-body">
+          <div class="field">
+            <label for="symptoms">Reported symptoms <span style="color:var(--red)">*</span></label>
+            <input id="symptoms" placeholder="e.g. fever, dry cough, fatigue" required>
+            <div class="hint">Separate multiple symptoms with commas.</div>
+          </div>
+
+          <div class="field temperature-box" id="temperature-group" hidden>
+            <label for="temperature">Body temperature <span style="color:var(--red)">*</span></label>
+            <div class="two-col">
+              <input id="temperature" type="number" min="25" max="45" step="0.1"
+                     placeholder="e.g. 38.2" disabled>
+              <select id="temperature_unit" aria-label="Temperature unit" disabled>
+                <option value="C">Celsius (°C)</option>
+                <option value="F">Fahrenheit (°F)</option>
+              </select>
+            </div>
+            <label class="temp-check">
+              <input id="temperature-unknown" type="checkbox">
+              <span>Not measured yet</span>
+            </label>
+            <div class="hint" id="temperature-hint">Enter a measured reading or select “Not measured yet”.</div>
+          </div>
+
+          <div class="two-col">
+            <div class="field">
+              <label for="age">Patient age <span style="color:var(--red)">*</span></label>
+              <input id="age" type="number" min="0" max="120" placeholder="Age in years" required>
+            </div>
+            <div class="field">
+              <label for="sex">Sex</label>
+              <select id="sex">
+                <option value="unknown">Not specified</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="duration">Symptom duration <span class="optional">Optional</span></label>
+            <input id="duration" type="number" min="0" placeholder="Number of days">
+          </div>
+
+          <div class="field">
+            <label for="notes">Additional clinical notes <span class="optional">Optional · Max 500 characters</span></label>
+            <textarea id="notes" rows="3" maxlength="500" placeholder="Relevant context, associated symptoms, or observations…"></textarea>
+            <div class="hint">Notes are not included in interaction logs.</div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label for="key">Access API key <span class="optional">Only if authentication is enabled</span></label>
+            <input id="key" type="password" autocomplete="off" placeholder="Enter application access key">
+          </div>
+
+          <button id="go" class="primary" type="submit">
+            <span>Analyze symptoms</span><span aria-hidden="true">→</span>
+          </button>
+          <p class="form-foot">Review all generated suggestions before taking action.</p>
+        </form>
+      </section>
+
+      <section class="panel" aria-live="polite" aria-atomic="false">
+        <div class="panel-head">
+          <div class="panel-kicker">02 / Assessment output</div>
+          <h2>Clinical insights</h2>
+          <p class="panel-desc">Your structured results will appear here.</p>
+        </div>
+        <div id="out" class="results-body">
+          <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">✳</div>
+            <h3>Ready for assessment</h3>
+            <p>Complete the patient information and select Analyze symptoms to view the preliminary results.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <span>HealthTrack AI · Clinical decision support prototype</span>
+    <span>Not a substitute for professional medical judgement.</span>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // Construct elements with textContent only; model output is never inserted as HTML.
+    function el(tag, text, cls) {
+      const e = document.createElement(tag);
+      if (text !== null && text !== undefined) e.textContent = text;
+      if (cls) e.className = cls;
+      return e;
+    }
+
+    function section(title, icon, items, kind) {
+      const box = el('section', null, 'result-section');
+      box.append(el('h3', null, 'section-title'));
+      box.querySelector('h3').append(
+        el('span', icon, 'section-icon'),
+        document.createTextNode(title)
+      );
+
+      const ul = el('ul', null, 'result-list ' + (kind || ''));
+      items.forEach(item => ul.append(el('li', item)));
+      box.append(ul);
+      return box;
+    }
+
+    function showEmpty() {
+      const box = el('div', null, 'empty-state');
+      box.append(
+        el('div', '✳', 'empty-icon'),
+        el('h3', 'Ready for assessment'),
+        el('p', 'Complete the patient information and select Analyze symptoms to view the preliminary results.')
+      );
+      $('out').replaceChildren(box);
+    }
+
+    function showResult(d) {
+      const out = $('out');
+      out.replaceChildren();
+
+      const urgency = String(d.urgency || 'unknown').toLowerCase();
+      const top = el('div', null, 'result-top ' +
+        (['routine', 'urgent', 'emergency'].includes(urgency) ? urgency : 'urgent'));
+
+      top.append(
+        el('div', 'ASSESSMENT PRIORITY', 'urgency-label'),
+        el('div', 'Urgency: ' + urgency.toUpperCase() +
+          (d.cached ? ' (cached)' : ''), 'urgency-value'),
+        el('div', urgency === 'emergency'
+          ? 'Emergency-level symptoms require immediate clinical attention.'
+          : urgency === 'urgent'
+            ? 'Prompt clinical assessment may be needed.'
+            : 'Review the findings and apply clinical judgement.',
+          'urgency-note')
+      );
+      out.append(top);
+
+      if (urgency === 'emergency') {
+        const warning = el('div', null, 'emergency-callout');
+        warning.append(
+          el('strong', 'Emergency warning'),
+          el('div', 'Do not delay emergency evaluation while reviewing these results.')
+        );
+        out.append(warning);
+      }
+
+      if (Array.isArray(d.red_flags) && d.red_flags.length) {
+        out.append(section('Red flags', '!', d.red_flags, 'emergency-list'));
+      }
+
+      if (Array.isArray(d.possible_conditions) && d.possible_conditions.length) {
+        const box = el('section', null, 'result-section');
+        const heading = el('h3', null, 'section-title');
+        heading.append(el('span', '◇', 'section-icon'), document.createTextNode('Possible conditions'));
+        box.append(heading);
+
+        const ul = el('ul', null, 'result-list');
+        d.possible_conditions.forEach(condition => {
+          const li = el('li');
+          const name = el('span', condition.name || 'Unspecified condition', 'condition-name');
+          const likelihood = String(condition.likelihood || 'unspecified').toLowerCase();
+          name.append(el('span', likelihood, 'tag ' +
+            (['low', 'medium', 'high'].includes(likelihood) ? likelihood : '')));
+          li.append(name, el('span', condition.rationale || '', 'condition-detail'));
+          ul.append(li);
+        });
+        box.append(ul);
+        out.append(box);
+      }
+
+      if (Array.isArray(d.recommended_next_steps) && d.recommended_next_steps.length) {
+        out.append(section('Recommended next steps', '→', d.recommended_next_steps, 'steps-list'));
+      }
+
+      const foot = el('div', null, 'disclaimer');
+      foot.append(el('div', d.disclaimer || 'Preliminary decision support only. Not a diagnosis.'));
+      if (d.request_id) foot.append(el('div', 'Request ID: ' + d.request_id, 'request-id'));
+      out.append(foot);
+    }
+
+
+    const temperatureGroup = $('temperature-group');
+    const temperatureInput = $('temperature');
+    const temperatureUnit = $('temperature_unit');
+    const temperatureUnknown = $('temperature-unknown');
+    const temperatureHint = $('temperature-hint');
+
+    function feverReported() {
+      const text = $('symptoms').value.toLowerCase();
+      return /\b(fever|feverish|febrile|pyrexia)\b|\b(high|raised|elevated)\s+(body\s+)?temp(?:erature)?\b|\b(high|raised|elevated)\s+temperature\b/.test(text);
+    }
+
+    function updateTemperatureVisibility() {
+      const visible = feverReported();
+      temperatureGroup.hidden = !visible;
+
+      if (!visible) {
+        temperatureInput.value = '';
+        temperatureUnknown.checked = false;
+        temperatureUnit.value = 'C';
+      }
+
+      temperatureInput.disabled = !visible || temperatureUnknown.checked;
+      temperatureUnit.disabled = !visible || temperatureUnknown.checked;
+      temperatureInput.required = visible && !temperatureUnknown.checked;
+
+      if (visible) {
+        const fahrenheit = temperatureUnit.value === 'F';
+        temperatureInput.min = fahrenheit ? '77' : '25';
+        temperatureInput.max = fahrenheit ? '113' : '45';
+        temperatureInput.placeholder = fahrenheit ? 'e.g. 100.4' : 'e.g. 38.2';
+        temperatureHint.textContent = temperatureUnknown.checked
+          ? 'Temperature has not been measured.'
+          : fahrenheit ? 'Valid range: 77–113 °F.' : 'Valid range: 25–45 °C.';
+      }
+    }
+
+    $('symptoms').addEventListener('input', updateTemperatureVisibility);
+    temperatureUnit.addEventListener('change', updateTemperatureVisibility);
+    temperatureUnknown.addEventListener('change', updateTemperatureVisibility);
+    updateTemperatureVisibility();
+
+    $('assessment-form').addEventListener('submit', async event => {
+      event.preventDefault();
+
+      let temperature = null;
+      const temperatureUnitValue = $('temperature_unit').value;
+
+      if (feverReported() && !$('temperature-unknown').checked) {
+        const rawTemperature = $('temperature').value;
+        const numericTemperature = Number(rawTemperature);
+        const minTemperature = temperatureUnitValue === 'F' ? 77 : 25;
+        const maxTemperature = temperatureUnitValue === 'F' ? 113 : 45;
+
+        if (rawTemperature === '' || !Number.isFinite(numericTemperature) ||
+            numericTemperature < minTemperature || numericTemperature > maxTemperature) {
+          $('out').replaceChildren(el(
+            'div',
+            `Enter a temperature between ${minTemperature} and ${maxTemperature} °${temperatureUnitValue}, or select “Not measured yet”.`,
+            'error-box'
+          ));
+          $('temperature').focus();
+          return;
+        }
+        temperature = numericTemperature;
+      }
+
+      const symptoms = $('symptoms').value.split(',').map(s => s.trim()).filter(Boolean);
+      const ageValue = $('age').value;
+      const durationValue = $('duration').value;
+
+      if (!symptoms.length || ageValue === '') {
+        $('out').replaceChildren(el('div', 'Enter symptoms and patient age to continue.', 'error-box'));
+        return;
+      }
+
+      const age = Number(ageValue);
+      if (!Number.isInteger(age) || age < 0 || age > 120) {
+        $('out').replaceChildren(el('div', 'Enter a valid age between 0 and 120.', 'error-box'));
+        return;
+      }
+
+      if (durationValue !== '' && (!Number.isInteger(Number(durationValue)) || Number(durationValue) < 0)) {
+        $('out').replaceChildren(el('div', 'Duration must be a non-negative whole number of days.', 'error-box'));
+        return;
+      }
+
+      const button = $('go');
+      button.disabled = true;
+      button.replaceChildren(el('span', 'Analyzing…'), el('span', '◌'));
+      $('out').replaceChildren(
+        el('div', null, 'loading-state')
+      );
+      const loading = $('out').firstElementChild;
+      loading.append(el('div', null, 'spinner'), el('strong', 'Preparing assessment…'),
+        el('p', 'Generating structured insights. Please wait.'));
+
+      const body = {
+        symptoms,
+        temperature,
+        temperature_unit: temperatureUnitValue,
+        age,
+        sex: $('sex').value,
+        duration_days: durationValue !== '' ? Number(durationValue) : null,
+        notes: $('notes').value || null
+      };
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-API-Key': $('key').value
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          const message = Array.isArray(data.detail)
+            ? data.detail.map(item => item.msg).join('; ')
+            : (typeof data.detail === 'string' ? data.detail : 'The assessment could not be completed.');
+          $('out').replaceChildren(el('div', message, 'error-box'));
+          return;
+        }
+
+        showResult(data);
+      } catch (error) {
+        $('out').replaceChildren(el('div',
+          'Unable to reach the assessment service. Check that the server is running and try again.',
+          'error-box'));
+      } finally {
+        button.disabled = false;
+        button.replaceChildren(el('span', 'Analyze symptoms'), el('span', '→'));
+      }
+    });
+  </script>
+</body>
+</html>
